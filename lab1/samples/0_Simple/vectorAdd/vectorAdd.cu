@@ -51,8 +51,9 @@ int
 main(void)
 {
 
-    chronometer_t chrono_1;
+    chronometer_t chrono_1, chrono_2;
     char mensagem[3000];
+    double vazao;
     
     // Error code to check return values for CUDA calls
     cudaError_t err = cudaSuccess;
@@ -140,12 +141,16 @@ main(void)
     printf("CUDA kernel launch with %d blocks of %d threads\n", blocksPerGrid, threadsPerBlock);
     
     chrono_reset(&chrono_1);
+    chrono_reset(&chrono_2);
 
+    chrono_start(&chrono_2);
     for(int i = 0; i < N_ACTIVATIONS; i++){
         chrono_start(&chrono_1);
         vectorAdd<<<blocksPerGrid, threadsPerBlock>>>(d_A, d_B, d_C, numElements);
         chrono_stop(&chrono_1); 
     }
+    cudaDeviceSynchronize();
+    chrono_stop(&chrono_2);
 
     err = cudaGetLastError();
 
@@ -210,9 +215,25 @@ main(void)
 
     printf("Done\n");   
     
-        
+    printf("======================\n");
+    printf("TEMPOS\n");
+    printf("======================\n");
+    printf("\tTempo por Ativação\n");
     chrono_reportTime(&chrono_1, mensagem);
     printf("%s", mensagem);
+
+    printf("======================\n");
+    printf("\tTempo Total de operações\n");
+    chrono_reportTime(&chrono_2, mensagem);
+    printf("%s", mensagem);
+    printf("\tVazão\n");
+    vazao = (50000 * N_ACTIVATIONS) / (chrono_gettotal(&chrono_2) / 1000000000.00);
+    printf("\t %lf operações/segundo\n", vazao);
+
+
+
+    
+    
     return 0;
 
 
