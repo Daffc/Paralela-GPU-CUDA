@@ -1,0 +1,60 @@
+ci1009/ci318/info7072b - 
+COMPUTAÇÃO PARALELA COM GPUS - 
+Período Especial 2/2020     
+
+Lab 1    Data: 25/nov/2020
+-----
+
+Objetivos: 
+- medir tempo de ativacao de um kernel (vectorAdd)
+- medir vazão do kernel vectorAdd em numero de elementos somados/segundo
+  para um vetor de 10 Mi floats (obs: 1 Mi = 2 ^ 20)
+- praticar a diferença entre o modelo "Many-threads" da NVIDIA e
+  o modelo de kernels threads persistentes
+- verificar se existe alguma diferença de desempenho entre os modelos acima 
+  para o vectorAdd
+- mudar o vectorAdd para 512  threads / bloco e 1024 threads por bloco e verificar 
+  se vazao se altera no vectorAdd para o o modelo "Many-threads" da NVIDIA e
+  o modelo de kernels threads persistentes
+- Medir a escalabilidade do vectorAdd variando-se o numero de MPs utilizados
+  (somente possivel com o modelo de threads persistentes?)
+
+Roteiro
+-------
+
+Vamos medir o tempo (em princípio) com a lib chrono.h (fornecida pelo prof.)
+que está em www.inf.ufpr.br/ci1009-2020/labs/chrono.h
+
+a) copiar o vectorAdd para sua área (está na Orval, no diretório samples da NVIDIA)
+   mudar o vectorAdd para medir o tempo de ativacao do kernel. 
+   Fazer para 30 ativacoes e medir o tempo com o chrono.
+
+b) Mudar o vectorAdd feito em a) para medir a o tempo e a vazao para cada soma de vetor de 10 Mi de floats.
+   Metodo: 
+     amostrar chrono( &t1 )
+       fazer 30 vezes {
+         ativar kernel VectorAdd
+       }
+       sincronizar threads (esperar as 30 ativacoes terminarem) 
+     amostrar chrono( &t2 )
+     calcular deltaT( t1, t2 ) com o chrono e imprimir
+     calcular e imprimir a vazao 
+
+c) Transformar vectorAdd para o modelo de kernels de threads persistentes 
+   verificar se existe alguma diferença de desempenho entre os modelos acima 
+  para o vectorAdd
+
+d) mudar o vectorAdd para 512  threads / bloco e 1024 threads por bloco e verificar 
+  se vazao se altera no vectorAdd para o o modelo "Many-threads" da NVIDIA e
+  o modelo de kernels threads persistentes
+       
+e) Medir a escalabilidade do vectorAdd variando-se o numero de MPs utilizados
+  (somente possivel com o modelo de threads persistentes?) 
+   para 1,2 e 3 MPs (orval)
+   para 1, 2, 4, 8 ... MPs (outras GPUs maiores se disponível)
+
+   Fazer um grafico da escalabilidade com o numero de MPs
+
+   OBS: para esse experimento seria mais adequado fazer com o melor numero de threads/Bloco
+        obtidos para o modelo de threads (melhor configuracao por bloco do experimento d) 
+  
