@@ -31,8 +31,8 @@
     }                                                           \
   } while (0)
 
-void compileFileToCUBIN(char *filename, int argc, char **argv, char **cubinResult,
-                      size_t *cubinResultSize, int requiresCGheaders) {
+void compileFileToPTX(char *filename, int argc, char **argv, char **ptxResult,
+                      size_t *ptxResultSize, int requiresCGheaders) {
   std::ifstream inputFile(filename,
                           std::ios::in | std::ios::binary | std::ios::ate);
 
@@ -67,9 +67,9 @@ void compileFileToCUBIN(char *filename, int argc, char **argv, char **cubinResul
       &minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice));
   
   {
-  // Compile cubin for the GPU arch on which are going to run cuda kernel.
+  // Compile for the GPU arch on which are going to run cuda kernel.
   std::string compileOptions;
-  compileOptions = "--gpu-architecture=sm_";
+  compileOptions = "--gpu-architecture=compute_";
 
   compileParams[numCompileOptions] = reinterpret_cast<char *>(
                   malloc(sizeof(char) * (compileOptions.length() + 10)));
@@ -142,20 +142,21 @@ void compileFileToCUBIN(char *filename, int argc, char **argv, char **cubinResul
   free(log);
 
   NVRTC_SAFE_CALL("nvrtcCompileProgram", res);
-
-  size_t codeSize;
-  NVRTC_SAFE_CALL("nvrtcGetCUBINSize", nvrtcGetCUBINSize(prog, &codeSize));
-  char *code = new char[codeSize];
-  NVRTC_SAFE_CALL("nvrtcGetCUBIN", nvrtcGetCUBIN(prog, code));
-  *cubinResult = code;
-  *cubinResultSize = codeSize;
+  // fetch PTX
+  size_t ptxSize;
+  NVRTC_SAFE_CALL("nvrtcGetPTXSize", nvrtcGetPTXSize(prog, &ptxSize));
+  char *ptx = reinterpret_cast<char *>(malloc(sizeof(char) * ptxSize));
+  NVRTC_SAFE_CALL("nvrtcGetPTX", nvrtcGetPTX(prog, ptx));
+  NVRTC_SAFE_CALL("nvrtcDestroyProgram", nvrtcDestroyProgram(&prog));
+  *ptxResult = ptx;
+  *ptxResultSize = ptxSize;
 
   for (int i = 0; i < numCompileOptions; i++) {
     free(compileParams[i]);
   }
 }
 
-CUmodule loadCUBIN(char *cubin, int argc, char **argv) {
+CUmodule loadPTX(char *ptx, int argc, char **argv) {
   CUmodule module;
   CUcontext context;
   int major = 0, minor = 0;
@@ -173,10 +174,11 @@ CUmodule loadCUBIN(char *cubin, int argc, char **argv) {
   printf("> GPU Device has SM %d.%d compute capability\n", major, minor);
 
   checkCudaErrors(cuInit(0));
+  checkCudaErrors(cuDeviceGet(&cuDevice, 0));
   checkCudaErrors(cuCtxCreate(&context, 0, cuDevice));
 
-  checkCudaErrors(cuModuleLoadData(&module, cubin));
-  free(cubin);
+  checkCudaErrors(cuModuleLoadDataEx(&module, ptx, 0, 0, 0));
+  free(ptx);
 
   return module;
 }
