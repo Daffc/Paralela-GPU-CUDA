@@ -296,7 +296,7 @@ endif
 # Target rules
 all: build
 
-build: vectorAdd
+build: vectorAdd_TP
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -305,19 +305,19 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-vectorAdd.o:vectorAdd.cu
+vectorAdd_TP.o:vectorAdd_TP.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-vectorAdd: vectorAdd.o
+vectorAdd_TP: vectorAdd_TP.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./vectorAdd
+	$(EXEC) ./vectorAdd_TP
 
 clean:
-	rm -f vectorAdd vectorAdd.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/vectorAdd
+	rm -f vectorAdd_TP vectorAdd_TP.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/vectorAdd_TP
 
 clobber: clean
