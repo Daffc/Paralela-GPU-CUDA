@@ -1,6 +1,16 @@
 
 #include "chrono.h"
 
+#define GTX750TI 1
+#define GPU GTX750TI
+    #if GPU == GTX750TI
+    #define MP 5
+    #define THREADS_PER_BLOCK 1024
+    #define RESIDENT_BLOCKS_PER_MP 2
+    #define NTA \
+    (MP*RESIDENT_BLOCKS_PER_MP*THREADS_PER_BLOCK)
+#endif
+
 #define N_ACTIVATIONS 30
 /**
  * Copyright 1993-2015 NVIDIA Corporation.  All rights reserved.
@@ -33,12 +43,10 @@
  * Computes the vector addition of A and B into C. The 3 vectors have the same
  * number of elements numElements.
  */
-__global__ void
-vectorAdd(const float *A, const float *B, float *C, int numElements)
+__global__ void vectorAdd( const float *A, const float *B, float *C, int numElements)
 {
-    int i = blockDim.x * blockIdx.x + threadIdx.x;
-
-    if (i < numElements)
+    int i;
+    for( i = blockDim.x * blockIdx.x + threadIdx.x ; (i < numElements) ; i += NTA )
     {
         C[i] = A[i] + B[i];
     }
@@ -136,22 +144,18 @@ main(void)
     }
 
     // Launch the Vector Add CUDA Kernel
-    int threadsPerBlock = 256;
-    int blocksPerGrid =(numElements + threadsPerBlock - 1) / threadsPerBlock;
-    printf("CUDA kernel launch with %d blocks of %d threads\n", blocksPerGrid, threadsPerBlock);
-    
     chrono_reset(&chrono_1);
     chrono_reset(&chrono_2);
 
     chrono_start(&chrono_2);
     for(int i = 0; i < N_ACTIVATIONS; i++){
         chrono_start(&chrono_1);
-        vectorAdd<<<blocksPerGrid, threadsPerBlock>>>(d_A, d_B, d_C, numElements);
+        vectorAdd<<< MP*RESIDENT_BLOCKS_PER_MP, THREADS_PER_BLOCK >>>( d_A, d_B, d_C, numElements );
         chrono_stop(&chrono_1); 
     }
     cudaDeviceSynchronize();
     chrono_stop(&chrono_2);
-
+ 
     err = cudaGetLastError();
 
     if (err != cudaSuccess)
@@ -170,7 +174,25 @@ main(void)
         fprintf(stderr, "Failed to copy vector C from device to host (error code %s)!\n", cudaGetErrorString(err));
         exit(EXIT_FAILURE);
     }
+    err = cudaGetLastError();
 
+    if (err != cudaSuccess)
+    {
+        fprintf(stderr, "Failed to launch vectorAdd kernel (error code %s)!\n", cudaGetErrorString(err));
+        exit(EXIT_FAILURE);
+    }
+
+    // Copy the device result vector in device memory to the host result vector
+    // in host memory.
+    printf("Copy output data from the CUDA device to the host memory\n");
+    err = cudaMemcpy(h_C, d_C, size, cudaMemcpyDeviceToHost);
+
+    if (err != cudaSuccess)
+    {
+        fprintf(stderr, "Failed to copy vector C from device to host (error code %s)!\n", cudaGetErrorString(err));
+        exit(EXIT_FAILURE);
+    }
+    
     // Verify that the result vector is correct
     for (int i = 0; i < numElements; ++i)
     {
