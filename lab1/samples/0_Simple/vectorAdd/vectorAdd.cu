@@ -59,7 +59,7 @@ main(void)
     cudaError_t err = cudaSuccess;
 
     // Print the vector length to be used, and compute its size
-    int numElements = 50000;
+    int numElements = 10000000;
     size_t size = numElements * sizeof(float);
     printf("[Vector addition of %d elements]\n", numElements);
 
@@ -123,7 +123,7 @@ main(void)
 
     if (err != cudaSuccess)
     {
-        fprintf(stderr, "Failed to copy vecN_ACTIVATIONStor A from host to device (error code %s)!\n", cudaGetErrorString(err));
+        fprintf(stderr, "Failed to copy vector A from host to device (error code %s)!\n", cudaGetErrorString(err));
         exit(EXIT_FAILURE);
     }
 
@@ -226,16 +226,10 @@ main(void)
     printf("\tTempo Total de operações\n");
     chrono_reportTime(&chrono_2, mensagem);
     printf("%s", mensagem);
-    printf("\tVazão\n");
-    vazao = (50000 * N_ACTIVATIONS) / (chrono_gettotal(&chrono_2) / 1000000000.00);
-    printf("\t %lf operações/segundo\n", vazao);
-
-
-
-    
-    
+    printf("\tVazão:\n");
+    vazao = ((numElements * N_ACTIVATIONS) * 1.0 / chrono_gettotal(&chrono_2) * 1.0);
+    printf("\t %lf GFLOPS\n", vazao);
     return 0;
 
 
 }
-
