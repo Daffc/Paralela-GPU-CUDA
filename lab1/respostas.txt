@@ -1,11 +1,11 @@
 a)
-  deltaT(ns): 60101 ns for 30 ops 
-        ==> each op takes 2003 ns
+Tempo por Ativação
+
+deltaT(ns): 195833 ns for 30 ops
+      ==> each op takes 6527 ns
 
 b) 
-  Tempo Total de operações
-  deltaT(ns): 153105 ns for 1 ops
-        ==> each op takes 153105 ns
-  
-  Vazão
-         9797198001.371607 operações/segundo
+ deltaT(ns): 47637358 ns for 1 ops
+        ==> each op takes 47637358 ns
+        Vazão:
+         6.297578 GFLOPS
