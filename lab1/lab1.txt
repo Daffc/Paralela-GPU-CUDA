@@ -56,5 +56,4 @@ e) Medir a escalabilidade do vectorAdd variando-se o numero de MPs utilizados
    Fazer um grafico da escalabilidade com o numero de MPs
 
    OBS: para esse experimento seria mais adequado fazer com o melor numero de threads/Bloco
-        obtidos para o modelo de threads (melhor configuracao por bloco do experimento d) 
-  
+        obtidos para o modelo de threads (melhor configuracao por bloco do experimento d)  

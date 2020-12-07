@@ -1,0 +1,20 @@
+[Vector addition of 10000000 elements]
+Copy input data from the host memory to the CUDA device
+Copy output data from the CUDA device to the host memory
+Copy output data from the CUDA device to the host memory
+Test PASSED
+Done
+======================
+TEMPOS
+======================
+	Tempo por Ativação
+
+ deltaT(ns): 197628 ns for 30 ops 
+        ==> each op takes 6587 ns
+======================
+	Tempo Total de operações
+
+ deltaT(ns): 53175884 ns for 1 ops 
+        ==> each op takes 53175884 ns
+	Vazão:
+	 5.641655 GFLOPS

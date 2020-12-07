@@ -4,9 +4,9 @@
 #define GTX750TI 1
 #define GPU GTX750TI
     #if GPU == GTX750TI
-    #define MP 5
-    #define THREADS_PER_BLOCK 1024
-    #define RESIDENT_BLOCKS_PER_MP 2
+    #define MP 3
+    #define THREADS_PER_BLOCK 512
+    #define RESIDENT_BLOCKS_PER_MP 4
     #define NTA \
     (MP*RESIDENT_BLOCKS_PER_MP*THREADS_PER_BLOCK)
 #endif
@@ -67,7 +67,7 @@ main(void)
     cudaError_t err = cudaSuccess;
 
     // Print the vector length to be used, and compute its size
-    int numElements = 50000;
+    int numElements = 10000000;
     size_t size = numElements * sizeof(float);
     printf("[Vector addition of %d elements]\n", numElements);
 
@@ -248,16 +248,9 @@ main(void)
     printf("\tTempo Total de operações\n");
     chrono_reportTime(&chrono_2, mensagem);
     printf("%s", mensagem);
-    printf("\tVazão\n");
-    vazao = (50000 * N_ACTIVATIONS) / (chrono_gettotal(&chrono_2) / 1000000000.00);
-    printf("\t %lf operações/segundo\n", vazao);
-
-
-
-    
+    printf("\tVazão:\n");
+    vazao = ((numElements * N_ACTIVATIONS) * 1.0 / chrono_gettotal(&chrono_2) * 1.0);
+    printf("\t %lf GFLOPS\n", vazao);    
     
     return 0;
-
-
 }
-
