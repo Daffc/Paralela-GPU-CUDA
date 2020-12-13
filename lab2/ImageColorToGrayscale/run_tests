@@ -1,0 +1,11 @@
+./ImageColorToGrayScale -i Dataset/0/input0.ppm Dataset/0/input1.ppm -o out0.ppm
+./ImageColorToGrayScale -i Dataset/1/input0.ppm Dataset/1/input1.ppm -o out1.ppm
+./ImageColorToGrayScale -i Dataset/2/input0.ppm Dataset/2/input1.ppm -o out2.ppm
+./ImageColorToGrayScale -i Dataset/3/input0.ppm Dataset/3/input1.ppm -o out3.ppm
+./ImageColorToGrayScale -i Dataset/4/input0.ppm Dataset/4/input1.ppm -o out4.ppm
+./ImageColorToGrayScale -i Dataset/5/input0.ppm Dataset/5/input1.ppm -o out5.ppm
+./ImageColorToGrayScale -i Dataset/6/input0.ppm Dataset/6/input1.ppm -o out6.ppm
+./ImageColorToGrayScale -i Dataset/7/input0.ppm Dataset/7/input1.ppm -o out7.ppm
+./ImageColorToGrayScale -i Dataset/8/input0.ppm Dataset/8/input1.ppm -o out8.ppm
+./ImageColorToGrayScale -i Dataset/9/input0.ppm Dataset/9/input1.ppm -o out9.ppm
+

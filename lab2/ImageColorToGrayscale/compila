@@ -1,0 +1,1 @@
+nvcc ImageColorToGrayScale.cu -o ImageColorToGrayScale
