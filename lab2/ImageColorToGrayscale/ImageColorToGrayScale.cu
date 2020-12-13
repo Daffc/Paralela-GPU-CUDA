@@ -43,12 +43,7 @@ int main(int argc, char *argv[]) {
   unsigned char *deviceOutputImageData;
 
   args = wbArg_read(argc, argv); /* parse the input arguments */
-//  show_args( args ); // debug
-
-//  inputImageFile = wbArg_getInputFileName(args, 2);
-    inputImageFile = argv[2];
-
-//  inputImage = wbImportImage(inputImageFile);
+  inputImageFile = argv[1];
   inputImage = wbImport(inputImageFile);
 
 
@@ -67,14 +62,14 @@ int main(int argc, char *argv[]) {
 
   wbTime_start(GPU, "Doing GPU memory allocation");
   cudaMalloc((void **)&deviceInputImageData,
-             imageWidth * imageHeight * imageChannels * sizeof(float));
+             imageWidth * imageHeight * imageChannels * sizeof(unsigned char));
   cudaMalloc((void **)&deviceOutputImageData,
-             imageWidth * imageHeight * sizeof(float));
+             imageWidth * imageHeight * sizeof(unsigned char));
   wbTime_stop(GPU, "Doing GPU memory allocation");
-
+  
   wbTime_start(Copy, "Copying data to the GPU");
   cudaMemcpy(deviceInputImageData, hostInputImageData,
-             imageWidth * imageHeight * imageChannels * sizeof(float),
+             imageWidth * imageHeight * imageChannels * sizeof(unsigned char),
              cudaMemcpyHostToDevice);
   wbTime_stop(Copy, "Copying data to the GPU");
 
@@ -105,7 +100,7 @@ int main(int argc, char *argv[]) {
   //      visualizador de imagems (por exemplo, com o eog)
   //      
   //void wbExport(const char* fName, wbImage_t image );
-  wbExport( "minhaImagem.ppm", hostOutputImageData );
+  wbExport( "minhaImagem.ppm", outputImage );
 
   wbSolution(args, outputImage);
 
