@@ -23,6 +23,27 @@
 //@@ INSERT CODE HERE
   //@@ INSERIR AQUI SEU codigo do seu kernel CUDA
 
+  __global__ void converterEscalaDeCinza(unsigned char * saida_cinza, unsigned char *entrada_RGB, int largura, int altura, int qtn_canais){
+  
+  int x = blockIdx.x*blockDim.x + threadIdx.x;
+  int y = blockIdx.y*blockDim.y + threadIdx.y;
+
+  if(x < largura && y < altura){
+    int posicao_cinza = y*largura + x;
+    int posicao_RGB = posicao_cinza * qtn_canais;
+
+    unsigned char r = entrada_RGB[posicao_RGB];
+    unsigned char g = entrada_RGB[posicao_RGB + 1];
+    unsigned char b = entrada_RGB[posicao_RGB + 2];
+
+    saida_cinza[posicao_cinza] = 0.21*r + 0.71*g + 0.07*b; 
+
+    // printf("\t%d = 0.21 * %d + 0.71f * %d + 0.07f * %d",saida_cinza[posicao_cinza], r, g, b);
+    // printf("\t%d", saida_cinza[posicao_cinza]);
+  }
+}
+
+
 int main(int argc, char *argv[]) {
   wbArg_t args;
   int imageChannels;
@@ -32,18 +53,13 @@ int main(int argc, char *argv[]) {
   wbImage_t inputImage;
   wbImage_t outputImage;
 
-//  float *hostInputImageData;
-//  float *hostOutputImageData;
-//  float *deviceInputImageData;
-//  float *deviceOutputImageData;
-
   unsigned char *hostInputImageData;
   unsigned char *hostOutputImageData;
   unsigned char *deviceInputImageData;
   unsigned char *deviceOutputImageData;
 
   args = wbArg_read(argc, argv); /* parse the input arguments */
-  inputImageFile = argv[1];
+  inputImageFile = argv[2];
   inputImage = wbImport(inputImageFile);
 
 
@@ -83,12 +99,17 @@ int main(int argc, char *argv[]) {
        //      voce pode VISUALIZAR o que voce gerou com um 
        //      visualizador de imagems (por exemplo, com o eog)
 
+  dim3 DimGrid((imageWidth-1)/32 + 1, (imageHeight-1)/32+1, 1);
+  dim3 DimBlock(32, 32, 1);
+
+  converterEscalaDeCinza<<<DimGrid,DimBlock>>>(deviceOutputImageData, deviceInputImageData, imageWidth, imageHeight, imageChannels);
+  cudaDeviceSynchronize();
   wbTime_stop(Compute, "Doing the computation on the GPU");
 
   ///////////////////////////////////////////////////////
   wbTime_start(Copy, "Copying data from the GPU");
   cudaMemcpy(hostOutputImageData, deviceOutputImageData,
-             imageWidth * imageHeight * sizeof(float),
+             imageWidth * imageHeight * sizeof(unsigned char),
              cudaMemcpyDeviceToHost);
   wbTime_stop(Copy, "Copying data from the GPU");
 

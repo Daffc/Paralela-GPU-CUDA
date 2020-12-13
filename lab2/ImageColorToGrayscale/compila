@@ -1,1 +1,1 @@
-nvcc ImageColorToGrayScale.cu -o ImageColorToGrayScale
+nvcc -arch=sm_50 ImageColorToGrayScale.cu -o ImageColorToGrayScale
