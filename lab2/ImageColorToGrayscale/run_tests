@@ -1,3 +1,7 @@
+# Girassol e Lena
+./ImageColorToGrayScale -i DatasetW/0/input.ppm -o DatasetW/0/output.pbm
+./ImageColorToGrayScale -i DatasetW/1/input.ppm -o DatasetW/1/output.pbm
+# outras imagens
 ./ImageColorToGrayScale -i Dataset/0/input.ppm -o Dataset/0/output.pbm
 ./ImageColorToGrayScale -i Dataset/1/input.ppm -o Dataset/1/output.pbm
 ./ImageColorToGrayScale -i Dataset/2/input.ppm -o Dataset/2/output.pbm
@@ -8,4 +12,3 @@
 ./ImageColorToGrayScale -i Dataset/7/input.ppm -o Dataset/7/output.pbm
 ./ImageColorToGrayScale -i Dataset/8/input.ppm -o Dataset/8/output.pbm
 ./ImageColorToGrayScale -i Dataset/9/input.ppm -o Dataset/9/output.pbm
-
