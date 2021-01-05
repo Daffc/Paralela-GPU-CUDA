@@ -4,9 +4,9 @@
 #define GTX750TI 1
 #define GPU GTX750TI
     #if GPU == GTX750TI
-    #define MP 3
-    #define THREADS_PER_BLOCK 512
-    #define RESIDENT_BLOCKS_PER_MP 4
+    #define MP 4
+    #define THREADS_PER_BLOCK 1024
+    #define RESIDENT_BLOCKS_PER_MP 2
     #define NTA \
     (MP*RESIDENT_BLOCKS_PER_MP*THREADS_PER_BLOCK)
 #endif

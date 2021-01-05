@@ -296,7 +296,7 @@ endif
 # Target rules
 all: build
 
-build: vectorAdd_TP_3_512_512
+build: vectorAdd_TP_5_1024
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -305,19 +305,19 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-vectorAdd_TP_3_512_512.o:vectorAdd_TP_3_512_512.cu
+vectorAdd_TP_5_1024.o:vectorAdd_TP_5_1024.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-vectorAdd_TP_3_512_512: vectorAdd_TP_3_512_512.o
+vectorAdd_TP_5_1024: vectorAdd_TP_5_1024.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./vectorAdd_TP_3_512_512
+	$(EXEC) ./vectorAdd_TP_5_1024
 
 clean:
-	rm -f vectorAdd_TP_3_512_512 vectorAdd_TP_3_512_512.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/vectorAdd_TP_3_512_512
+	rm -f vectorAdd_TP_5_1024 vectorAdd_TP_5_1024.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/vectorAdd_TP_5_1024
 
 clobber: clean
