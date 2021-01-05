@@ -15,6 +15,39 @@
 
 #define BLUR_SIZE 5
 
+__global__ void blurKernel(unsigned char *saida, unsigned char  *entrada, int largura, int altura) {
+  int linha = blockIdx.y * blockDim.y +threadIdx.y;
+  int coluna = blockIdx.x * blockDim.x + threadIdx.x;
+
+  if(linha < altura && coluna < largura){
+    int valor_r = 0,
+        valor_g = 0,
+        valor_b = 0,
+        cont = 0,
+        linha_atual,
+        coluna_atual;
+
+    for(int blurLinha= -BLUR_SIZE; blurLinha <=  BLUR_SIZE; blurLinha++){
+      for(int blurColun= -BLUR_SIZE; blurColun <=  BLUR_SIZE; blurColun++){
+        linha_atual = linha + blurLinha;
+        coluna_atual = coluna + blurColun;
+
+        if((linha_atual >= 0) && (linha_atual < altura) && (coluna_atual >= 0) && (coluna_atual < largura)){
+          valor_r += entrada[((linha_atual * largura + coluna_atual) * 3) + 0];
+          valor_g += entrada[((linha_atual * largura + coluna_atual) * 3) + 1];
+          valor_b += entrada[((linha_atual * largura + coluna_atual) * 3) + 2];
+          cont++;
+        }
+      }
+    }
+
+    saida[((linha * largura + coluna) * 3) + 0] = valor_r / cont;
+    saida[((linha * largura + coluna) * 3) + 1] = valor_g / cont;
+    saida[((linha * largura + coluna) * 3) + 2] = valor_b / cont;
+  }
+  
+}
+
 //@@ INSERT CODE HERE
   //@@ INSERIR AQUI o codigo do seu kernel CUDA
 
@@ -63,10 +96,13 @@ int main(int argc, char *argv[]) {
   wbTime_stop(Copy, "Copying data to the GPU");
 
   ///////////////////////////////////////////////////////
+
+  dim3 DimGrid((imageWidth-1)/16 + 1, ((imageHeight * 3 )-1)/16+1, 1);
+  dim3 DimBlock(16, 16, 1);
+
   wbTime_start(Compute, "Doing the computation on the GPU");
 
-  //@@ INSERT CODE HERE
-  //@@ INSERIR AQUI SEU codigo para ativar SEU kernel CUDA
+  blurKernel<<<DimGrid,DimBlock>>>(deviceOutputImageData, deviceInputImageData, imageWidth, imageHeight);
 
   wbTime_stop(Compute, "Doing the computation on the GPU");
 
