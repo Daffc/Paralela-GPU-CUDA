@@ -97,8 +97,8 @@ int main(int argc, char *argv[]) {
 
   ///////////////////////////////////////////////////////
 
-  dim3 DimGrid((imageWidth-1)/16 + 1, ((imageHeight * 3 )-1)/16+1, 1);
-  dim3 DimBlock(16, 16, 1);
+  dim3 DimGrid((imageWidth-1)/32 + 1, ((imageHeight)-1)/32+1, 1);
+  dim3 DimBlock(32, 32, 1);
 
   wbTime_start(Compute, "Doing the computation on the GPU");
 
