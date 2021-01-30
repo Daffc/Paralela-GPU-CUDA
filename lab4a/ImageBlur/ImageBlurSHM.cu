@@ -16,6 +16,8 @@
   #define NT1 1024           // number of threads per block in the //   rgb2uintKernelSHM and rgb2uintKernelSHM kernels//    this is perhaps the best value for GTX750Ti
 #endif
 
+#define TILE_DIMENSION 16
+
 
 #include "wb4.h" // use our lib instead (under construction)
 
@@ -31,7 +33,13 @@
 
 #define BLUR_SIZE 5
 
-__global__ void blurKernelSHM(unsigned char *saida, unsigned char  *entrada, int largura, int altura) {
+
+
+//@@ INSERT CODE HERE
+  //@@ INSERIR AQUI o codigo do seu kernel CUDA
+
+__global__ void blurKernelSHM(unsigned int *saida, unsigned int  *entrada, int largura, int altura) {
+
   int linha = blockIdx.y * blockDim.y +threadIdx.y;
   int coluna = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -49,17 +57,14 @@ __global__ void blurKernelSHM(unsigned char *saida, unsigned char  *entrada, int
         coluna_atual = coluna + blurColun;
 
         if((linha_atual >= 0) && (linha_atual < altura) && (coluna_atual >= 0) && (coluna_atual < largura)){
-          valor_r += entrada[((linha_atual * largura + coluna_atual) * 3) + 0];
-          valor_g += entrada[((linha_atual * largura + coluna_atual) * 3) + 1];
-          valor_b += entrada[((linha_atual * largura + coluna_atual) * 3) + 2];
+          valor_r += entrada[(linha_atual * largura + coluna_atual)] >> 16;
+          valor_g += entrada[(linha_atual * largura + coluna_atual)] << 16 >> 24;
+          valor_b += entrada[(linha_atual * largura + coluna_atual)] << 24 >> 24;
           cont++;
         }
       }
     }
-
-    saida[((linha * largura + coluna) * 3) + 0] = valor_r / cont;
-    saida[((linha * largura + coluna) * 3) + 1] = valor_g / cont;
-    saida[((linha * largura + coluna) * 3) + 2] = valor_b / cont;
+    saida[(linha * largura + coluna)] = ((valor_r / cont) << 16) + ((valor_g / cont) << 8) + (valor_b / cont);
   }
   
 }
@@ -68,7 +73,6 @@ __global__ void rgb2uintKernelSHM(unsigned int *saida, unsigned char  *entrada, 
   int i = blockDim.x * blockIdx.x + threadIdx.x;
   if(i < tamanho){
     saida[i] = ((unsigned int)entrada[i * 3] << 16) + ((unsigned int)entrada[(i * 3) + 1] << 8) + (unsigned int)(unsigned int)entrada[(i * 3) + 2];
-    printf("%d\t%d\t%d\t = %d\n",entrada[i * 3], entrada[(i * 3) + 1 ], entrada[(i * 3) + 2],saida[i]);
   }  
 }
 
@@ -82,8 +86,6 @@ __global__ void uint2rgbKernelSHM(unsigned char *saida, unsigned int  *entrada, 
   }
 }
 
-//@@ INSERT CODE HERE
-  //@@ INSERIR AQUI o codigo do seu kernel CUDA
 
 
 int main(int argc, char *argv[]) {
@@ -137,8 +139,7 @@ int main(int argc, char *argv[]) {
 
   ///////////////////////////////////////////////////////
 
-  // dim3 DimGrid((imageWidth-1)/32 + 1, ((imageHeight)-1)/32+1, 1);
-  // dim3 DimBlock(32, 32, 1);
+
 
   wbTime_start(Compute, "Doing the computation on the GPU");
 
@@ -147,14 +148,18 @@ int main(int argc, char *argv[]) {
   dim3 DimGridTrans((tamanho-1)/32 + 1, 1, 1);
   dim3 DimBlockTrans(32, 1, 1);
 
+  // EFETUANDO TRANSIÇÃO DE CHAR -> INT
   rgb2uintKernelSHM<<<DimGridTrans, DimBlockTrans>>>(intDeviceInputImageData, deviceInputImageData, tamanho);
   cudaDeviceSynchronize();
 
-  printf("\n---------------------------------------------------------------------------\n");
 
-  uint2rgbKernelSHM<<<DimGridTrans, DimBlockTrans>>>(deviceOutputImageData, intDeviceInputImageData, tamanho);
+  dim3 DimGrid((imageWidth-1)/32 + 1, ((imageHeight)-1)/32+1, 1);
+  dim3 DimBlock(32, 32, 1);
+  blurKernelSHM<<<DimGrid,DimBlock>>>(intDeviceOutputImageData, intDeviceInputImageData,  imageWidth, imageHeight);
+  cudaDeviceSynchronize();
 
-  // blurKernelSHM<<<DimGrid,DimBlock>>>(deviceOutputImageData, deviceInputImageData, imageWidth, imageHeight);
+  // EFETUANDO TRANSIÇÃO DE INT -> CHAR
+  uint2rgbKernelSHM<<<DimGridTrans, DimBlockTrans>>>(deviceOutputImageData, intDeviceOutputImageData, tamanho);
 
   wbTime_stop(Compute, "Doing the computation on the GPU");
 
