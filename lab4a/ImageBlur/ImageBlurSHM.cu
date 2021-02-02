@@ -16,8 +16,6 @@
   #define NT1 1024           // number of threads per block in the //   rgb2uintKernelSHM and rgb2uintKernelSHM kernels//    this is perhaps the best value for GTX750Ti
 #endif
 
-#define TILE_DIMENSION 16
-
 
 #include "wb4.h" // use our lib instead (under construction)
 
@@ -32,41 +30,68 @@
   } while (0)
 
 #define BLUR_SIZE 5
+#define NTHREADS 32
+#define BLOCK_SIZE (NTHREADS - (2 * BLUR_SIZE))   // DIMENSÃO DE PIXELS QUE SOFRERÃO O BLUR
+#define TILE_WIDTH (BLOCK_SIZE + (2 * BLUR_SIZE)) // DIMENSÃO TOTAO DE TILE (PIXEL DE BLUR + BORDA) 
 
 
 
 //@@ INSERT CODE HERE
   //@@ INSERIR AQUI o codigo do seu kernel CUDA
-
 __global__ void blurKernelSHM(unsigned int *saida, unsigned int  *entrada, int largura, int altura) {
 
-  int linha = blockIdx.y * blockDim.y +threadIdx.y;
-  int coluna = blockIdx.x * blockDim.x + threadIdx.x;
+  
+  __shared__ unsigned int sh_mem[TILE_WIDTH][TILE_WIDTH];
 
-  if(linha < altura && coluna < largura){
-    int valor_r = 0,
-        valor_g = 0,
-        valor_b = 0,
-        cont = 0,
-        linha_atual,
-        coluna_atual;
+  // ENDEREÇO DE "linha", "coluna" e "edereço_imagem"  COM SHIFT PARA ÁREA DE IMAGEM.
+  const int coluna = blockIdx.x * BLOCK_SIZE + threadIdx.x - BLUR_SIZE;       
+  const int linha = blockIdx.y * BLOCK_SIZE + threadIdx.y - BLUR_SIZE;       
+  const int endereco_imagem = (linha * largura) + coluna;                    
 
-    for(int blurLinha= -BLUR_SIZE; blurLinha <=  BLUR_SIZE; blurLinha++){
-      for(int blurColun= -BLUR_SIZE; blurColun <=  BLUR_SIZE; blurColun++){
-        linha_atual = linha + blurLinha;
-        coluna_atual = coluna + blurColun;
+  // ARMAZENA EM SHARED MEMORY APENAS OS PIXELS QUE EXITEM NA IMAGEM DE ENTRADA.
+  if((linha >= 0) && (coluna >= 0) && (linha < altura) && (coluna < largura)) {
 
-        if((linha_atual >= 0) && (linha_atual < altura) && (coluna_atual >= 0) && (coluna_atual < largura)){
-          valor_r += entrada[(linha_atual * largura + coluna_atual)] >> 16;
-          valor_g += entrada[(linha_atual * largura + coluna_atual)] << 16 >> 24;
-          valor_b += entrada[(linha_atual * largura + coluna_atual)] << 24 >> 24;
-          cont++;
-        }
-      }
-    }
-    saida[(linha * largura + coluna)] = ((valor_r / cont) << 16) + ((valor_g / cont) << 8) + (valor_b / cont);
+    sh_mem[threadIdx.y][threadIdx.x] = entrada[endereco_imagem]; 
   }
   
+  __syncthreads();
+
+  // VERIFICA SE THREAD TRATA DE UM PIXEL DA IMAGEM (DENTRO DE BLOCK_SIZE)
+  if ((threadIdx.x >= BLUR_SIZE) && (threadIdx.x < (TILE_WIDTH - BLUR_SIZE)) && (threadIdx.y >= BLUR_SIZE) && (threadIdx.y < (TILE_WIDTH - BLUR_SIZE))) {
+    // VERIFICA SE PIXEL EM QUESTÃO NÃO ESTRAPOLA DIMENsÕES DA IMAGEM.
+    if((linha < altura) && (coluna < largura)){
+      unsigned int valor_r = 0, valor_g = 0, valor_b = 0, cont = 0;
+      
+      int linha_atual,
+          coluna_atual,
+          linha_imagem,
+          coluna_imagem;
+  
+      for(int blurLinha= -BLUR_SIZE; blurLinha <=  BLUR_SIZE; blurLinha++){
+        for(int blurColun= -BLUR_SIZE; blurColun <=  BLUR_SIZE; blurColun++){
+          
+          // COORDENADAS DE PIXEL EM SHARED MEMORY.
+          linha_atual = threadIdx.y  + blurLinha;
+          coluna_atual = threadIdx.x + blurColun;
+
+          //COORDENADA DE PIXEL EM IMAGEM REFERÊNCIA.
+          linha_imagem = linha + blurLinha;
+          coluna_imagem = coluna + blurColun;
+
+          // VERIFICA SE PIXEL [LINHA_IMAGEM, COLUNA_IMAGEM], CONTIDO NA SHARED_MEMORY, ESTÁ CONTIDO NA IMAGEM.
+          if((linha_imagem >= 0) && (coluna_imagem >= 0) && (linha_imagem < altura) && (coluna_imagem < largura)){
+            valor_r += sh_mem[linha_atual][coluna_atual] >> 16;
+            valor_g += sh_mem[linha_atual][coluna_atual] << 16 >> 24;
+            valor_b += sh_mem[linha_atual][coluna_atual] << 24 >> 24;
+
+            cont++;
+          }
+          
+        }
+      }
+      saida[endereco_imagem] = ((valor_r / cont) << 16) + ((valor_g / cont) << 8) + (valor_b / cont);  
+    }
+  }  
 }
 
 __global__ void rgb2uintKernelSHM(unsigned int *saida, unsigned char  *entrada, int tamanho){
@@ -145,16 +170,17 @@ int main(int argc, char *argv[]) {
 
   int tamanho = imageWidth * imageHeight;
 
-  dim3 DimGridTrans((tamanho-1)/32 + 1, 1, 1);
-  dim3 DimBlockTrans(32, 1, 1);
+  dim3 DimGridTrans((tamanho-1)/NTHREADS + 1, 1, 1);
+  dim3 DimBlockTrans(NTHREADS, 1, 1);
 
   // EFETUANDO TRANSIÇÃO DE CHAR -> INT
   rgb2uintKernelSHM<<<DimGridTrans, DimBlockTrans>>>(intDeviceInputImageData, deviceInputImageData, tamanho);
   cudaDeviceSynchronize();
 
 
-  dim3 DimGrid((imageWidth-1)/32 + 1, ((imageHeight)-1)/32+1, 1);
-  dim3 DimBlock(32, 32, 1);
+  // DEFININDO GRID EM RELAÇÃO AO TAMANHO DA IMAGEM E DA QUANTIDADE DE PIXEL QUE RECEBERÃO O BLUS (BLOCK_SIZE X BLOCK_SIZE)
+  dim3 DimGrid((imageWidth-1)/BLOCK_SIZE + 1, ((imageHeight)-1)/BLOCK_SIZE+1, 1);
+  dim3 DimBlock(NTHREADS, NTHREADS, 1);
   blurKernelSHM<<<DimGrid,DimBlock>>>(intDeviceOutputImageData, intDeviceInputImageData,  imageWidth, imageHeight);
   cudaDeviceSynchronize();
 
