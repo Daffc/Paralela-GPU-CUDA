@@ -1,22 +1,5 @@
 // v0.2 modified by WZ
 
-#define GPU_V 750
-
-#if GPU_V == 480
-  #define MP 15// number of mutiprocessors (SMs) in GTX480
-  #define GRID1 MP*2// GRID sizefor rgb2uintKernelSHM and rgb2uintKernelSHM kernels
-  #define NT1 768// number of threads per block in the //   rgb2uintKernelSHM and rgb2uintKernelSHM kernels//    this is perhaps the best value for GTX480
-#elif GPU_V == 680
-  #define MP 8// number of mutiprocessors (SMs) in GTX680
-  #define GRID1 MP*2// GRID sizefor rgb2uintKernelSHM and rgb2uintKernelSHM kernels
-  #define NT1 1024           // number of threads per block in the //   rgb2uintKernelSHM and rgb2uintKernelSHM kernels//    this is perhaps the best value for GTX680
-#elif GPU_V == 750
-  #define MP 5// number of mutiprocessors (SMs) in GTX750Ti
-  #define GRID1 MP*2 // GRID sizefor rgb2uintKernelSHM and rgb2uintKernelSHM kernels
-  #define NT1 1024           // number of threads per block in the //   rgb2uintKernelSHM and rgb2uintKernelSHM kernels//    this is perhaps the best value for GTX750Ti
-#endif
-
-
 #include "wb4.h" // use our lib instead (under construction)
 
 #define wbCheck(stmt)                                                     \
@@ -40,12 +23,14 @@
   //@@ INSERIR AQUI o codigo do seu kernel CUDA
 __global__ void blurKernelSHM(unsigned int *saida, unsigned int  *entrada, int largura, int altura) {
 
+  // ESTA PRIMEIRA ETAPA DO KERNEL TEM A FUNÇÃO DE RECUPERAR TODOS OS PIXELS EXISTENTES NA IMAGEM PARA A SHARED MEMORY.
   
+  //ALOCAÇÃO DE MEMÓRIA EM SHARED MEMORI PARA TODOS O BLOCO, INCLUINDO AS BORDAS PARA BLUR.
   __shared__ unsigned int sh_mem[TILE_WIDTH][TILE_WIDTH];
 
   // ENDEREÇO DE "linha", "coluna" e "edereço_imagem"  COM SHIFT PARA ÁREA DE IMAGEM.
   const int coluna = blockIdx.x * BLOCK_SIZE + threadIdx.x - BLUR_SIZE;       
-  const int linha = blockIdx.y * BLOCK_SIZE + threadIdx.y - BLUR_SIZE;       
+  const int linha = blockIdx.y * BLOCK_SIZE + threadIdx.y - BLUR_SIZE; 
   const int endereco_imagem = (linha * largura) + coluna;                    
 
   // ARMAZENA EM SHARED MEMORY APENAS OS PIXELS QUE EXITEM NA IMAGEM DE ENTRADA.
@@ -56,12 +41,14 @@ __global__ void blurKernelSHM(unsigned int *saida, unsigned int  *entrada, int l
   
   __syncthreads();
 
-  // VERIFICA SE THREAD TRATA DE UM PIXEL DA IMAGEM (DENTRO DE BLOCK_SIZE)
+  // ESTA SEGUNRA ETAPA DO KERNEL TEM A VERIFICAR SE O PIXEL DE SHARED MEMORY EM QUESTÃO CORRESPONDE A UM DOS QUE DEVERÃO SOFRER BLUR (DENTRO DAS DIMENSÕES [BLOCK_SIZE X BLOCK_SIZE]) E EFETUAR A OPERAÇÃO DE BLUR.
+
+  // VERIFICA SE THREAD TRATA DE UM QUE CORRESPONDA A PIXEL QUE DEVERÁ SOFRER BLUR (OU SEJA, DENTRO DE [BLOCK_SIZE X BLOCK_SIZE])
   if ((threadIdx.x >= BLUR_SIZE) && (threadIdx.x < (TILE_WIDTH - BLUR_SIZE)) && (threadIdx.y >= BLUR_SIZE) && (threadIdx.y < (TILE_WIDTH - BLUR_SIZE))) {
-    // VERIFICA SE PIXEL EM QUESTÃO NÃO ESTRAPOLA DIMENsÕES DA IMAGEM.
+    // VERIFICA SE PIXEL EM QUESTÃO NÃO ESTRAPOLA DIMENSÕES DA IMAGEM ORIGINAL.
     if((linha < altura) && (coluna < largura)){
-      unsigned int valor_r = 0, valor_g = 0, valor_b = 0, cont = 0;
       
+      unsigned int valor_r = 0, valor_g = 0, valor_b = 0, cont = 0;
       int linha_atual,
           coluna_atual,
           linha_imagem,
@@ -78,7 +65,8 @@ __global__ void blurKernelSHM(unsigned int *saida, unsigned int  *entrada, int l
           linha_imagem = linha + blurLinha;
           coluna_imagem = coluna + blurColun;
 
-          // VERIFICA SE PIXEL [LINHA_IMAGEM, COLUNA_IMAGEM], CONTIDO NA SHARED_MEMORY, ESTÁ CONTIDO NA IMAGEM.
+          // VERIFICA SE PIXEL QUE SERÁ ADICIONADO A CONTÁGEM DO BLUR [LINHA_IMAGEM, COLUNA_IMAGEM], CONTIDO NA SHARED_MEMORY, 
+          // TAMBÉM É UM PIXEL EXISTENE NA IMAGEM ORIGINAL.
           if((linha_imagem >= 0) && (coluna_imagem >= 0) && (linha_imagem < altura) && (coluna_imagem < largura)){
             valor_r += sh_mem[linha_atual][coluna_atual] >> 16;
             valor_g += sh_mem[linha_atual][coluna_atual] << 16 >> 24;
@@ -89,22 +77,30 @@ __global__ void blurKernelSHM(unsigned int *saida, unsigned int  *entrada, int l
           
         }
       }
+      // ARMAZENA VALOR DE BLUR NAS TRÊS DIMENSÕES (R,G,B), EM ENTRADA CORRESPONDENTE A PIXEL.
       saida[endereco_imagem] = ((valor_r / cont) << 16) + ((valor_g / cont) << 8) + (valor_b / cont);  
     }
   }  
 }
 
 __global__ void rgb2uintKernelSHM(unsigned int *saida, unsigned char  *entrada, int tamanho){
+  
   int i = blockDim.x * blockIdx.x + threadIdx.x;
+  
+  // VERIFICA SE PIXEL "i" NÃO EXTRAPOLA IMAGEM ORIGINAL.
   if(i < tamanho){
+    // ACESSA COORDENADAS LINEARES DE PIXEL entrada[i * 3] E ARMAZENA SUAS DIMENSÕES (R, G, B) EM INTEIRO NA MATRIZ saida[i]
     saida[i] = ((unsigned int)entrada[i * 3] << 16) + ((unsigned int)entrada[(i * 3) + 1] << 8) + (unsigned int)(unsigned int)entrada[(i * 3) + 2];
   }  
 }
 
 __global__ void uint2rgbKernelSHM(unsigned char *saida, unsigned int  *entrada, int tamanho){
+  
   int i = blockDim.x * blockIdx.x + threadIdx.x;
   
+  // VERIFICA SE PIXEL "i" NÃO EXTRAPOLA IMAGEM ORIGINAL.
   if(i < tamanho){
+    // REALIZA OPERAÇÕES DE SHIFT PARA RECUPERAR DIMENSÕES (R, G, B) E COLOCA-LAS EM SUAS DEVIDAS POSIÇÕES EM VETOR saida[i], RESPECTIVAMENTE.
     saida[i * 3] = entrada[i] >> 16;
     saida[(i * 3) + 1] = entrada[i] << 16 >> 24;
     saida[(i * 3) + 2] = entrada[i] << 24 >> 24;
@@ -117,6 +113,7 @@ int main(int argc, char *argv[]) {
   wbArg_t args;
   int imageWidth;
   int imageHeight;
+  int tamanho_imagem;
   char *inputImageFile;
   wbImage_t inputImage;
   wbImage_t outputImage;
@@ -126,6 +123,7 @@ int main(int argc, char *argv[]) {
   unsigned int  *intDeviceInputImageData;
   unsigned char *deviceOutputImageData;
   unsigned int  *intDeviceOutputImageData;
+  
 
   args = wbArg_read(argc, argv); /* parse the input arguments */
 
@@ -136,6 +134,7 @@ int main(int argc, char *argv[]) {
 
   imageWidth  = wbImage_getWidth(inputImage);
   imageHeight = wbImage_getHeight(inputImage);
+  tamanho_imagem = imageWidth * imageHeight;
 
 // NOW: input and output images are RGB (3 channel)
   outputImage = wbImage_new(imageWidth, imageHeight, 3);
@@ -168,24 +167,27 @@ int main(int argc, char *argv[]) {
 
   wbTime_start(Compute, "Doing the computation on the GPU");
 
-  int tamanho = imageWidth * imageHeight;
-
-  dim3 DimGridTrans((tamanho-1)/NTHREADS + 1, 1, 1);
+  // DEFINIDO DIMENSÕES DE GRID E BLOCK LINEARES PARA KERNELS rgb2uintKernelSHM E uint2rgbKernelSHM.
+  dim3 DimGridTrans((tamanho_imagem-1)/NTHREADS + 1, 1, 1);
   dim3 DimBlockTrans(NTHREADS, 1, 1);
 
   // EFETUANDO TRANSIÇÃO DE CHAR -> INT
-  rgb2uintKernelSHM<<<DimGridTrans, DimBlockTrans>>>(intDeviceInputImageData, deviceInputImageData, tamanho);
+  rgb2uintKernelSHM<<<DimGridTrans, DimBlockTrans>>>(intDeviceInputImageData, deviceInputImageData, tamanho_imagem);
   cudaDeviceSynchronize();
 
 
-  // DEFININDO GRID EM RELAÇÃO AO TAMANHO DA IMAGEM E DA QUANTIDADE DE PIXEL QUE RECEBERÃO O BLUS (BLOCK_SIZE X BLOCK_SIZE)
+  // DEFININDO GRID PELA RELAÇÃO ÀS DIMENSÇÕES DA IMAGEM E DA QUANTIDADE DE PIXEL QUE RECEBERÃO O BLUR (BLOCK_SIZE)
   dim3 DimGrid((imageWidth-1)/BLOCK_SIZE + 1, ((imageHeight)-1)/BLOCK_SIZE+1, 1);
+  // DEFININDO BLOCO BIDIMENSIONAL PARA COMPORTAR TODAS AS THREADS UTILIZADAS (BLOCK_SIZE + (2 * BLUR_SIZE))
   dim3 DimBlock(NTHREADS, NTHREADS, 1);
+
+  // EVICANDO KERNEL PARA OPERAÇÃO DE BLUR EM IMAGEM.
   blurKernelSHM<<<DimGrid,DimBlock>>>(intDeviceOutputImageData, intDeviceInputImageData,  imageWidth, imageHeight);
   cudaDeviceSynchronize();
 
   // EFETUANDO TRANSIÇÃO DE INT -> CHAR
-  uint2rgbKernelSHM<<<DimGridTrans, DimBlockTrans>>>(deviceOutputImageData, intDeviceOutputImageData, tamanho);
+  uint2rgbKernelSHM<<<DimGridTrans, DimBlockTrans>>>(deviceOutputImageData, intDeviceOutputImageData, tamanho_imagem);
+  cudaDeviceSynchronize();
 
   wbTime_stop(Compute, "Doing the computation on the GPU");
 
