@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 
+
+#define NTHREADS_TOTAL 1024
+
 // TRATA DE ENTRADA DE ARGUMENTOS, IDENTIFICANDO ARQUIVO DE ENTRADA ('in') E SAIDA ('out').
 void identificaArquivosEntrada(FILE **in, FILE **out, int argc, char *argv[]){
     int i = 1;
@@ -68,11 +71,28 @@ void recuperaDadosEntrada(FILE *f_in, char *vetor_entrada[], long int tamanho){
 }
 
 
+__global__ void printChar(char *saida, char  *entrada, int tamanho){
+  
+    int i = blockDim.x * blockIdx.x + threadIdx.x;
+    
+    // VERIFICA SE PIXEL "i" NÃO EXTRAPOLA IMAGEM ORIGINAL.
+    if(i < tamanho){
+      // ACESSA COORDENADAS LINEARES DE PIXEL entrada[i * 3] E ARMAZENA SUAS DIMENSÕES (R, G, B) EM INTEIRO NA MATRIZ saida[i]
+      saida[i] = entrada[i];
+      printf("%c\n", saida[i]);
+    }  
+    else{
+        printf("-\n");
+    }
+  }
 
 int main(int argc, char *argv[]) {
     
     FILE *f_in, *f_out;
-    char *arquivoEntradaHost;
+    char *hostArquivoEntrada;
+    char *hostArquivoSaida;
+    char *deviceArquivoEntrada;
+    char *deviceArquivoSaida;
     long int in_size;
 
     // TRATAMENTO DE ARGUMENTOS DE ENTRADA.
@@ -81,18 +101,39 @@ int main(int argc, char *argv[]) {
     // RECUPERA TAMANHO DO ARQUIVO DE ENTRADA.
     in_size = identificaTamanhoEntrada(f_in);
 
-    // COPIA INFORMAÇÕES DE ARQUIVO DE ENTRADA PARA VETOR 'arquivoEntradaHost'.
-    recuperaDadosEntrada(f_in, &arquivoEntradaHost, in_size);
+    // COPIA INFORMAÇÕES DE ARQUIVO DE ENTRADA PARA VETOR 'hostArquivoEntrada'.
+    recuperaDadosEntrada(f_in, &hostArquivoEntrada, in_size);
+
+    hostArquivoSaida = (char *) malloc(in_size * sizeof(char));
+
+    // ALOCA MEMÓRIA PARA 'deviceArquivoEntrada' e 'deviceArquivoSaida'.
+    cudaMalloc((void **)&deviceArquivoEntrada, in_size * sizeof(char));
+    cudaMalloc((void **)&deviceArquivoSaida, in_size * sizeof(char));
+    
+
+    cudaMemcpy(deviceArquivoEntrada, hostArquivoEntrada, in_size * sizeof(char), cudaMemcpyHostToDevice);
 
 
+    // DEFINIDO DIMENSÕES DE GRID E BLOCK LINEARES PARA KERNELS rgb2uintKernelSHM E uint2rgbKernelSHM.
+    dim3 DimGrid((in_size-1)/NTHREADS_TOTAL + 1, 1, 1);
+    dim3 DimBlock(NTHREADS_TOTAL, 1, 1);
 
+    // EFETUANDO TRANSIÇÃO DE CHAR -> INT
+    printChar<<<DimGrid, DimBlock>>>(deviceArquivoSaida, deviceArquivoEntrada, in_size);
 
-
+    
+    cudaMemcpy(hostArquivoSaida, deviceArquivoSaida, in_size * sizeof(char), cudaMemcpyDeviceToHost);
+    
     // ESCREVE 'in_size' BYTES EM ARQUIVO DE SAIDA 'f_out'.
-    fwrite(arquivoEntradaHost, in_size, 1, f_out);
+    fwrite(hostArquivoSaida, in_size, 1, f_out);
 
 
-    free(arquivoEntradaHost);
+    free(hostArquivoEntrada);
+    free(hostArquivoEntrada);
+
+    cudaFree(deviceArquivoEntrada);
+    cudaFree(deviceArquivoSaida);
+
     fclose(f_in);
     fclose(f_out);
 
