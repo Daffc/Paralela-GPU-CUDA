@@ -1,0 +1,170 @@
+channels:3
+channels:3
+imagem de entrada: DatasetW/0/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000186112 Doing GPU memory allocation
+[Copy   ] 0.000058112 Copying data to the GPU
+[Compute] 0.000253184 Doing the computation on the GPU
+[Copy   ] 0.000110080 Copying data from the GPU
+[GPU    ] 0.000729088 Doing GPU Computation (memory + compute)
+channels:3
+checking against image DatasetW/0/output.ppm
+Solution is correct.
+writing 120000 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: DatasetW/1/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000157952 Doing GPU memory allocation
+[Copy   ] 0.000190976 Copying data to the GPU
+[Compute] 0.001130752 Doing the computation on the GPU
+[Copy   ] 0.000386048 Copying data from the GPU
+[GPU    ] 0.001944064 Doing GPU Computation (memory + compute)
+channels:3
+checking against image DatasetW/1/output.ppm
+Solution is correct.
+writing 786432 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/0/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000094976 Doing GPU memory allocation
+[Copy   ] 0.000059904 Copying data to the GPU
+[Compute] 0.000305920 Doing the computation on the GPU
+[Copy   ] 0.000108032 Copying data from the GPU
+[GPU    ] 0.000634880 Doing GPU Computation (memory + compute)
+channels:3
+checking against image Dataset/0/output.ppm
+Solution is correct.
+writing 196608 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/1/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000162816 Doing GPU memory allocation
+[Copy   ] 0.000189952 Copying data to the GPU
+[Compute] 0.001131008 Doing the computation on the GPU
+[Copy   ] 0.000434944 Copying data from the GPU
+[GPU    ] 0.002007040 Doing GPU Computation (memory + compute)
+channels:3
+checking against image Dataset/1/output.ppm
+Solution is correct.
+writing 786432 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/2/input.ppm
+channels:3
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/3/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000097024 Doing GPU memory allocation
+[Copy   ] 0.000080128 Copying data to the GPU
+[Compute] 0.000400896 Doing the computation on the GPU
+[Copy   ] 0.000140032 Copying data from the GPU
+[GPU    ] 0.000790016 Doing GPU Computation (memory + compute)
+channels:3
+checking against image Dataset/3/output.ppm
+Solution is correct.
+writing 273408 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/4/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000173056 Doing GPU memory allocation
+[Copy   ] 0.000619008 Copying data to the GPU
+[Compute] 0.004483840 Doing the computation on the GPU
+[Copy   ] 0.001447936 Copying data from the GPU
+[GPU    ] 0.006809088 Doing GPU Computation (memory + compute)
+channels:3
+checking against image Dataset/4/output.ppm
+Solution is correct.
+writing 3142656 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/5/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000161792 Doing GPU memory allocation
+[Copy   ] 0.001224960 Copying data to the GPU
+[Compute] 0.005455104 Doing the computation on the GPU
+[Copy   ] 0.001513984 Copying data from the GPU
+[GPU    ] 0.008457216 Doing GPU Computation (memory + compute)
+channels:3
+checking against image Dataset/5/output.ppm
+Solution is correct.
+writing 3449556 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/6/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000199168 Doing GPU memory allocation
+[Copy   ] 0.001176064 Copying data to the GPU
+[Compute] 0.009920768 Doing the computation on the GPU
+[Copy   ] 0.002654208 Copying data from the GPU
+[GPU    ] 0.014059008 Doing GPU Computation (memory + compute)
+channels:3
+checking against image Dataset/6/output.ppm
+Solution is correct.
+writing 6484356 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/7/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000187136 Doing GPU memory allocation
+[Copy   ] 0.001229056 Copying data to the GPU
+[Compute] 0.010198016 Doing the computation on the GPU
+[Copy   ] 0.002716160 Copying data from the GPU
+[GPU    ] 0.014466048 Doing GPU Computation (memory + compute)
+channels:3
+checking against image Dataset/7/output.ppm
+Solution is correct.
+writing 6474240 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/8/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000186112 Doing GPU memory allocation
+[Copy   ] 0.000614912 Copying data to the GPU
+[Compute] 0.004596992 Doing the computation on the GPU
+[Copy   ] 0.001562880 Copying data from the GPU
+[GPU    ] 0.007066112 Doing GPU Computation (memory + compute)
+channels:3
+checking against image Dataset/8/output.ppm
+Solution is correct.
+writing 3133440 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/9/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000161024 Doing GPU memory allocation
+[Copy   ] 0.000284928 Copying data to the GPU
+[Compute] 0.001606912 Doing the computation on the GPU
+[Copy   ] 0.000569088 Copying data from the GPU
+[GPU    ] 0.002694912 Doing GPU Computation (memory + compute)
+channels:3
+checking against image Dataset/9/output.ppm
+Solution is correct.
+writing 1123440 image bytes to file
+---------------------------------------------------------

@@ -1,0 +1,181 @@
+channels:3
+channels:3
+imagem de entrada: DatasetW/0/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000123904 Doing GPU memory allocation
+[Copy   ] 0.000062976 Copying data to the GPU
+[GPUblur] 0.000089088 Doing the blur computation on the GPU
+[Compute] 0.000160000 Doing the computation on the GPU
+[Copy   ] 0.000071168 Copying data from the GPU
+[GPU    ] 0.000514048 Doing GPU Computation (memory + compute)
+channels:33084,505
+checking against image DatasetW/0/output.ppm
+Solution is correct.
+writing 120000 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: DatasetW/1/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000332032 Doing GPU memory allocation
+[Copy   ] 0.000207104 Copying data to the GPU
+[GPUblur] 0.000424960 Doing the blur computation on the GPU
+[Compute] 0.000731904 Doing the computation on the GPU
+[Copy   ] 0.000389888 Copying data from the GPU
+[GPU    ] 0.001732096 Doing GPU Computation (memory + compute)
+channels:3
+checking against image DatasetW/1/output.ppm
+Solution is correct.
+writing 786432 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/0/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000103936 Doing GPU memory allocation
+[Copy   ] 0.000062976 Copying data to the GPU
+[GPUblur] 0.000118016 Doing the blur computation on the GPU
+[Compute] 0.000167936 Doing the computation on the GPU
+[Copy   ] 0.000110080 Copying data from the GPU
+[GPU    ] 0.000505088 Doing GPU Computation (memory + compute)
+channels:3
+checking against image Dataset/0/output.ppm
+Solution is correct.
+writing 196608 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/1/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000282880 Doing GPU memory allocation
+[Copy   ] 0.000205056 Copying data to the GPU
+[GPUblur] 0.000428032 Doing the blur computation on the GPU
+[Compute] 0.000508160 Doing the computation on the GPU
+[Copy   ] 0.000392960 Copying data from the GPU
+[GPU    ] 0.001451008 Doing GPU Computation (memory + compute)
+channels:3
+checking against image Dataset/1/output.ppm
+Solution is correct.
+writing 786432 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/2/input.ppm
+channels:3
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/3/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000151808 Doing GPU memory allocation
+[Copy   ] 0.000078080 Copying data to the GPU
+[GPUblur] 0.000160000 Doing the blur computation on the GPU
+[Compute] 0.000206080 Doing the computation on the GPU
+[Copy   ] 0.000148992 Copying data from the GPU
+[GPU    ] 0.000656128 Doing GPU Computation (memory + compute)
+channels:3
+checking against image Dataset/3/output.ppm
+Solution is correct.
+writing 273408 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/4/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000327936 Doing GPU memory allocation
+[Copy   ] 0.000603904 Copying data to the GPU
+[GPUblur] 0.001614848 Doing the blur computation on the GPU
+[Compute] 0.001843968 Doing the computation on the GPU
+[Copy   ] 0.001494016 Copying data from the GPU
+[GPU    ] 0.004356864 Doing GPU Computation (memory + compute)
+channels:3
+checking against image Dataset/4/output.ppm
+Solution is correct.
+writing 3142656 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/5/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000292864 Doing GPU memory allocation
+[Copy   ] 0.000665856 Copying data to the GPU
+[GPUblur] 0.001792000 Doing the blur computation on the GPU
+[Compute] 0.002034944 Doing the computation on the GPU
+[Copy   ] 0.001597952 Copying data from the GPU
+[GPU    ] 0.004674048 Doing GPU Computation (memory + compute)
+channels:3
+checking against image Dataset/5/output.ppm
+Solution is correct.
+writing 3449556 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/6/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000315136 Doing GPU memory allocation
+[Copy   ] 0.001145088 Copying data to the GPU
+[GPUblur] 0.003343104 Doing the blur computation on the GPU
+[Compute] 0.003770112 Doing the computation on the GPU
+[Copy   ] 0.002685952 Copying data from the GPU
+[GPU    ] 0.008008960 Doing GPU Computation (memory + compute)
+channels:3
+checking against image Dataset/6/output.ppm
+Solution is correct.
+writing 6484356 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/7/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000367872 Doing GPU memory allocation
+[Copy   ] 0.001163008 Copying data to the GPU
+[GPUblur] 0.003337984 Doing the blur computation on the GPU
+[Compute] 0.003805952 Doing the computation on the GPU
+[Copy   ] 0.002920960 Copying data from the GPU
+[GPU    ] 0.008352000 Doing GPU Computation (memory + compute)
+channels:3
+checking against ima3064,506
+Solution is correct.3064,506
+writing 6474240 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/8/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000288000 Doing GPU memory allocation
+[Copy   ] 0.000617984 Copying data to the GPU
+[GPUblur] 0.001617920 Doing the blur computation on the GPU
+[Compute] 0.001870080 Doing the computation on the GPU
+[Copy   ] 0.001370112 Copying data from the GPU
+[GPU    ] 0.004230912 Doing GPU Computation (memory + compute)
+channels:3
+checking against image Dataset/8/output.ppm
+Solution is correct.
+writing 3133440 image bytes to file
+---------------------------------------------------------
+channels:3
+channels:3
+imagem de entrada: Dataset/9/input.ppm
+channels:3
+channels:3
+[GPU    ] 0.000296960 Doing GPU memory allocation
+[Copy   ] 0.000259840 Copying data to the GPU
+[GPUblur] 0.000617984 Doing the blur computation on the GPU
+[Compute] 0.000718080 Doing the computation on the GPU
+[Copy   ] 0.000532224 Copying data from the GPU
+[GPU    ] 0.001874176 Doing GPU Computation (memory + compute)
+channels:3
+checking against image Dataset/9/output.ppm
+Solution is correct.
+writing 1123440 image bytes to file
+---------------------------------------------------------
