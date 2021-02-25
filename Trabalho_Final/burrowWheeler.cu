@@ -3,7 +3,9 @@
 #include <string.h>
 
 
-#define NTHREADS_TOTAL 1024
+// #define NTHREADS_TOTAL 1024
+#define NTHREADS_TOTAL 32
+#define TAM_ARRAY 100
 
 // TRATA DE ENTRADA DE ARGUMENTOS, IDENTIFICANDO ARQUIVO DE ENTRADA ('in') E SAIDA ('out').
 void identificaArquivosEntrada(FILE **in, FILE **out, int argc, char *argv[]){
@@ -71,20 +73,53 @@ void recuperaDadosEntrada(FILE *f_in, char *vetor_entrada[], long int tamanho){
 }
 
 
-__global__ void printChar(char *saida, char  *entrada, int tamanho){
+// FUNÇÃO QUE COMPARA DUAS STRINGS, RETORNANDO 0 CASO SEJAM IGUAIS, OU A DIFERENÇA ENTRE OS CARACTERES QUE A DIFEREM (NEGATIVO SE 's1' < 's2', POSITIVO CASO CONTRÁRIO).
+__device__ char strncmpCUDA(char *s1, char *s2, int size){
+    
+    register unsigned char u1, u2;
+
+    while (size-- > 0)
+      {
+            // SEPARA CARACTERES
+            u1 = (unsigned char) *s1++;
+            u2 = (unsigned char) *s2++;
+
+            // SE DIFERENTE, RETORNA DIFERENÇA
+            if (u1 != u2)
+                return u1 - u2;
+
+            // CASO AMBAS STRINGS TENHA TERMINHADO, RETORNAR 0.
+            if (u1 == '\0')
+                return 0;
+      }
+
+    // CASO AMBAS STRINGS TENHAM OS "size" CARACTERES IGUAIS, RETORNAR 0;
+    return 0;
+}
+__global__ void printChar(char *saida, char  *entrada, long int tamanho){
   
-    int i = blockDim.x * blockIdx.x + threadIdx.x;
+    char rotacao[TAM_ARRAY];
+    int j;
+
+    long int i = blockDim.x * blockIdx.x + threadIdx.x;
     
     // VERIFICA SE PIXEL "i" NÃO EXTRAPOLA IMAGEM ORIGINAL.
     if(i < tamanho){
-      // ACESSA COORDENADAS LINEARES DE PIXEL entrada[i * 3] E ARMAZENA SUAS DIMENSÕES (R, G, B) EM INTEIRO NA MATRIZ saida[i]
-      saida[i] = entrada[i];
-      printf("%c\n", saida[i]);
+        // ACESSA COORDENADAS LINEARES DE PIXEL entrada[i * 3] E ARMAZENA SUAS DIMENSÕES (R, G, B) EM INTEIRO NA MATRIZ saida[i]
+        saida[i] = entrada[i];
+        printf("%c\n", saida[i]);
+        for(j=0; j < tamanho; j++){
+            rotacao[j] = entrada[(i + j) % tamanho];
+        }
+
+        rotacao[tamanho] = '\0';
+        printf("%s\n", rotacao);
+
     }  
     else{
         printf("-\n");
     }
-  }
+}
 
 int main(int argc, char *argv[]) {
     
