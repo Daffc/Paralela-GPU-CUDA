@@ -6,10 +6,12 @@ extern "C" {
     #include "helper.h"
 }
 
+
 // #define NTHREADS_TOTAL 1024
 #define NTHREADS_TOTAL 4
-#define TAM_ARRAY 100
-
+#define BITONIC_BLOCK 4     // DEFINE A QUANTIDADE DE STRINGS QUE SERÃO ORDENADAS POR CADA CHAMADA DE BITONIC SORT (SENDO OBRIGATORIAMENTE UMA POTÊNCIA DE 2)
+#define KEY_SIZE 4
+#define TAM_STR_MAX 100
 
 // FUNÇÃO QUE COMPARA DUAS STRINGS, RETORNANDO 0 CASO SEJAM IGUAIS, OU A DIFERENÇA ENTRE OS CARACTERES QUE A DIFEREM (NEGATIVO SE 's1' < 's2', POSITIVO CASO CONTRÁRIO).
 __device__ char strncmpCUDA(char *s1, char *s2, int size){
@@ -35,14 +37,7 @@ __device__ char strncmpCUDA(char *s1, char *s2, int size){
     return 0;
 }
 
-__global__ void imprimeOrdem(long int *ordemPonteiros, long int tamanho){
-
-    // VERIFICA SE PIXEL "i" NÃO EXTRAPOLA IMAGEM ORIGINAL.
-    for(long int i = 0; i < tamanho; i++){
-        printf("%ld\n", ordemPonteiros[i]);
-    }  
-}
-
+// FUNÇÃO INICIALIZA VETOR 'orvemPonteiros' EM ORDEM CRESCENTE, DE 0 À  tamanho-1.
 __global__ void inicializaOrdemPonteiros(long int *ordemPonteiros, long int tamanho){
     long int i = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -51,9 +46,68 @@ __global__ void inicializaOrdemPonteiros(long int *ordemPonteiros, long int tama
         ordemPonteiros[i] = i;
     }  
 }
+
+__global__ void bitonicSortCUDA(char  *entrada, long int *ordemPonteiros, long int tamanho){
+
+    long int posicao = blockDim.x * blockIdx.x + threadIdx.x;
+
+    // APLICA BITONIC SORT SOMENTES SE HOUVEREM ELEMENTOS O SUFICIENTE PARA APLICAÇÃO.
+    if(posicao < (tamanho/BITONIC_BLOCK)){
+        int i,
+            j;
+
+        // ALOCA VETOR PARA STRINGS.
+        char strings[BITONIC_BLOCK][TAM_STR_MAX];
+
+        // APLICA VALOR DE CHAVES PARA 'strings[i]' DE ACORDO COM O PONTEIRO PARA ARQUELA POSIÇÃO INDICADO POR 'ordemPonteiros[posicao * BITONIC_BLOCK]'.
+        for(j = 0; j < BITONIC_BLOCK; j++){
+            for(i = 0; i < 4; i++){
+                strings[j][i] = entrada[(ordemPonteiros[(posicao * BITONIC_BLOCK)] + i + j) % tamanho];
+            }   
+            strings[j][i] = '\0';
+        }         
+
+        int k;
+        int cmp_ret, aux;
+        int subordem[BITONIC_BLOCK];
+
+        for(j = 0; j < BITONIC_BLOCK; j++){
+            subordem[j] = ordemPonteiros[(posicao * BITONIC_BLOCK) + j];
+        }
+
+        for (k = 2; k <= BITONIC_BLOCK; k = 2*k) {
+            for (j = k>>1; j > 0; j = j>>1) {
+                for (i= 0; i < BITONIC_BLOCK; i++) {
+                int ixj = i^j;
+                    if ((ixj) > i) { 
+                        cmp_ret = strncmpCUDA(strings[subordem[i] % BITONIC_BLOCK], strings[subordem[ixj] % BITONIC_BLOCK], 4);
+
+                        if ((i&k) == 0 &&  cmp_ret > 0){                            
+                            aux = subordem[i];
+                            subordem[i] = subordem[ixj];
+                            subordem[ixj] = aux;
+                        } 
+                        if ((i&k)!=0 && cmp_ret < 0){
+                            aux = subordem[i];
+                            subordem[i] = subordem[ixj];
+                            subordem[ixj] = aux;
+                        }
+                    }
+                }
+            }
+        }
+
+        
+        for(j = 0; j < BITONIC_BLOCK; j++){
+            ordemPonteiros[(posicao * BITONIC_BLOCK) + j] = subordem[j];
+        }
+        printf("%d %d %d %d\nBLOCO: %d, RESULTADO: %s, %s, %s, %s\n" , subordem[0],subordem[1], subordem[2], subordem[3], posicao * BITONIC_BLOCK, strings[0], strings[1], strings[2], strings[3]);
+    }
+}
+
 __global__ void printChar(char *saida, char  *entrada, long int tamanho){
   
-    char rotacao[TAM_ARRAY];
+    char rotacao[TAM_STR_MAX];
     int j;
 
     long int i = blockDim.x * blockIdx.x + threadIdx.x;
@@ -73,6 +127,22 @@ __global__ void printChar(char *saida, char  *entrada, long int tamanho){
     }  
 }
 
+// ========================================================
+// ==================      DEBUG     ======================
+// ========================================================
+
+__global__ void imprimeOrdem(long int *ordemPonteiros, long int tamanho){
+
+    // VERIFICA SE PIXEL "i" NÃO EXTRAPOLA IMAGEM ORIGINAL.
+    for(long int i = 0; i < tamanho; i++){
+        printf("%ld\n", ordemPonteiros[i]);
+    }  
+}
+
+
+// ========================================================
+// ==================      MAIN      ======================
+// ========================================================
 int main(int argc, char *argv[]) {
     
     FILE *f_in, *f_out;
@@ -111,10 +181,19 @@ int main(int argc, char *argv[]) {
 
     imprimeOrdem<<<1, 1>>>(ordemPonteiros, in_size);
 
-    dim3 DimGrid((in_size-1)/NTHREADS_TOTAL + 1, 1, 1);
+    dim3 DimGrid(((in_size / BITONIC_BLOCK)-1)/NTHREADS_TOTAL + 1, 1, 1);
     dim3 DimBlock(NTHREADS_TOTAL, 1, 1);
     // KERNEL DE TESTES
-    printChar<<<DimGrid, DimBlock>>>(deviceArquivoSaida, deviceArquivoEntrada, in_size);
+    printf("GRID %d, BLOCK %d\n", DimGrid.x, DimBlock.x);
+    bitonicSortCUDA<<<DimGrid, DimBlock>>>(deviceArquivoEntrada, ordemPonteiros, in_size);
+    
+    cudaError_t err = cudaGetLastError();        // Get error code
+
+    if ( err != cudaSuccess )
+    {
+       printf("CUDA Error: %s\n", cudaGetErrorString(err));
+       exit(-1);
+    }
 
     
     cudaMemcpy(hostArquivoSaida, deviceArquivoSaida, in_size * sizeof(char), cudaMemcpyDeviceToHost);
@@ -124,7 +203,7 @@ int main(int argc, char *argv[]) {
 
 
     free(hostArquivoEntrada);
-    free(hostArquivoEntrada);
+    free(hostArquivoSaida);
 
     cudaFree(deviceArquivoEntrada);
     cudaFree(deviceArquivoSaida);
