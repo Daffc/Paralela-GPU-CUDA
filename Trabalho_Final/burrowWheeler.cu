@@ -9,9 +9,9 @@ extern "C" {
 
 // #define NTHREADS_TOTAL 1024
 #define NTHREADS_TOTAL 4
-#define BITONIC_BLOCK 4     // DEFINE A QUANTIDADE DE STRINGS QUE SERÃO ORDENADAS POR CADA CHAMADA DE BITONIC SORT (SENDO OBRIGATORIAMENTE UMA POTÊNCIA DE 2)
-#define KEY_SIZE 4
+#define BITONIC_BLOCK 4    // DEFINE A QUANTIDADE DE STRINGS QUE SERÃO ORDENADAS POR CADA CHAMADA DE BITONIC SORT (SENDO OBRIGATORIAMENTE UMA POTÊNCIA DE 2)
 #define TAM_STR_MAX 100
+#define TAM_CHAVE 4
 
 // FUNÇÃO QUE COMPARA DUAS STRINGS, RETORNANDO 0 CASO SEJAM IGUAIS, OU A DIFERENÇA ENTRE OS CARACTERES QUE A DIFEREM (NEGATIVO SE 's1' < 's2', POSITIVO CASO CONTRÁRIO).
 __device__ char strncmpCUDA(char *s1, char *s2, int size){
@@ -61,13 +61,13 @@ __global__ void bitonicSortCUDA(char  *entrada, long int *ordemPonteiros, long i
 
         // APLICA VALOR DE CHAVES PARA 'strings[i]' DE ACORDO COM O PONTEIRO PARA ARQUELA POSIÇÃO INDICADO POR 'ordemPonteiros[posicao * BITONIC_BLOCK]'.
         for(j = 0; j < BITONIC_BLOCK; j++){
-            for(i = 0; i < 4; i++){
+            for(i = 0; i < TAM_CHAVE; i++){
                 strings[j][i] = entrada[(ordemPonteiros[(posicao * BITONIC_BLOCK)] + i + j) % tamanho];
             }   
             strings[j][i] = '\0';
         }         
 
-        int k;
+        int k, l, stringSize;
         int cmp_ret, aux;
         int subordem[BITONIC_BLOCK];
 
@@ -79,8 +79,21 @@ __global__ void bitonicSortCUDA(char  *entrada, long int *ordemPonteiros, long i
             for (j = k>>1; j > 0; j = j>>1) {
                 for (i= 0; i < BITONIC_BLOCK; i++) {
                 int ixj = i^j;
-                    if ((ixj) > i) { 
-                        cmp_ret = strncmpCUDA(strings[subordem[i] % BITONIC_BLOCK], strings[subordem[ixj] % BITONIC_BLOCK], 4);
+                    if ((ixj) > i) {
+                        stringSize = TAM_CHAVE; 
+
+                        while ((cmp_ret = strncmpCUDA(strings[subordem[i] % BITONIC_BLOCK], strings[subordem[ixj] % BITONIC_BLOCK], stringSize)) == 0){                            
+                                                        
+                            for(l = stringSize; l < stringSize + TAM_CHAVE; l++){
+                                strings[subordem[i] % BITONIC_BLOCK][l] = entrada[(subordem[i] + l) % tamanho];
+                                strings[subordem[ixj] % BITONIC_BLOCK][l] = entrada[(subordem[ixj] + l) % tamanho];
+                            }  
+                            strings[subordem[i] % BITONIC_BLOCK][l] = strings[subordem[ixj] % BITONIC_BLOCK][l] = '\0'; 
+                            printf("PÓS COLISAO= %d  %s %d  %s \t %d\n",subordem[i], strings[subordem[i] % BITONIC_BLOCK], subordem[ixj], strings[subordem[ixj] % BITONIC_BLOCK], l);
+                            
+                            stringSize += TAM_CHAVE;
+                        }
+
 
                         if ((i&k) == 0 &&  cmp_ret > 0){                            
                             aux = subordem[i];
@@ -187,6 +200,8 @@ int main(int argc, char *argv[]) {
     printf("GRID %d, BLOCK %d\n", DimGrid.x, DimBlock.x);
     bitonicSortCUDA<<<DimGrid, DimBlock>>>(deviceArquivoEntrada, ordemPonteiros, in_size);
     
+    imprimeOrdem<<<1, 1>>>(ordemPonteiros, in_size);
+
     cudaError_t err = cudaGetLastError();        // Get error code
 
     if ( err != cudaSuccess )
