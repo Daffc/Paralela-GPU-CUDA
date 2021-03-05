@@ -52,13 +52,6 @@ __device__ int nao_valido(unsigned char * tabuleiro, int linha, int coluna)
 __device__ int resolve_tabuleiro(unsigned char * tabuleiro, int rainhas)
 {
     int solucoes = 0, coluna = 2, linha = 0;
-    
-    // Caso o número de rainhas seja igual a 1, retornar 1 (existe apenas 1 possível tabuleiro, e é válido).
-    if (rainhas == 1)
-        return 1;
-    
-    if (rainhas == 2)
-        return 0;
 
     // Enquanto não encontrou distribuição válida ou não é possível voltar mais colunas no tabuleiro.
 	while ((coluna >= 2)){
@@ -107,6 +100,17 @@ __global__ void resolveTabuleiro(unsigned int *resposta, int rainhas){
   
     int i = blockDim.x * blockIdx.x + threadIdx.x;
     
+    // Caso o número de rainhas seja igual a 1, retornar 1 (existe apenas 1 possível tabuleiro, e é válido).
+    if (rainhas == 1){
+        resposta[i] = 1;
+        return;
+    }
+    
+    if (rainhas == 2){
+        resposta[i] = 0;
+        return;
+    }
+
     if(i < rainhas * rainhas){
         unsigned char tabuleiro[100];
         tabuleiro[1] = i / rainhas;
@@ -153,7 +157,7 @@ int main(int argc, char *argv[])
 
     
     // DEFINIDO DIMENSÕES DE GRID E BLOCK LINEARES PARA KERNELS resolveTabuleiro E uint2rgbKernelSHM.
-    dim3 DimGridTrans((rainhas-1)/NTHREADS + 1, 1, 1);
+    dim3 DimGridTrans(((rainhas * rainhas)-1)/NTHREADS + 1, 1, 1);
     dim3 DimBlockTrans(NTHREADS, 1, 1);
     
     tempo_ini_kernel = timestamp();
