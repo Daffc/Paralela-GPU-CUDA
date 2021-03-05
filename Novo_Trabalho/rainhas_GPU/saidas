@@ -1,0 +1,54 @@
+
+======================= Rodada: 1 ======================= 
+Rainhas: 1	Resposta: 1	Tempo: 0,000043	
+Rainhas: 1	Resposta: 1	Tempo Total: 0,561495	Tempo Kernel: 0,000042	Tempo Reduction: 0,000093
+======================= Rodada: 2 ======================= 
+Rainhas: 2	Resposta: 0	Tempo: 0,000049	
+Rainhas: 2	Resposta: 0	Tempo Total: 0,542190	Tempo Kernel: 0,000044	Tempo Reduction: 0,000096
+======================= Rodada: 3 ======================= 
+Rainhas: 3	Resposta: 0	Tempo: 0,000048	
+Rainhas: 3	Resposta: 0	Tempo Total: 0,544286	Tempo Kernel: 0,000043	Tempo Reduction: 0,000090
+======================= Rodada: 4 ======================= 
+Rainhas: 4	Resposta: 2	Tempo: 0,000050	
+Rainhas: 4	Resposta: 2	Tempo Total: 0,545491	Tempo Kernel: 0,000055	Tempo Reduction: 0,000093
+======================= Rodada: 5 ======================= 
+Rainhas: 5	Resposta: 10	Tempo: 0,000058	
+Rainhas: 5	Resposta: 10	Tempo Total: 0,547049	Tempo Kernel: 0,000093	Tempo Reduction: 0,000092
+======================= Rodada: 6 ======================= 
+Rainhas: 6	Resposta: 4	Tempo: 0,000080	
+Rainhas: 6	Resposta: 4	Tempo Total: 0,545864	Tempo Kernel: 0,000277	Tempo Reduction: 0,000095
+======================= Rodada: 7 ======================= 
+Rainhas: 7	Resposta: 40	Tempo: 0,000161	
+Rainhas: 7	Resposta: 40	Tempo Total: 0,546289	Tempo Kernel: 0,001027	Tempo Reduction: 0,000099
+======================= Rodada: 8 ======================= 
+Rainhas: 8	Resposta: 92	Tempo: 0,000573	
+Rainhas: 8	Resposta: 92	Tempo Total: 0,550409	Tempo Kernel: 0,004534	Tempo Reduction: 0,000098
+======================= Rodada: 9 ======================= 
+Rainhas: 9	Resposta: 352	Tempo: 0,002584	
+Rainhas: 9	Resposta: 352	Tempo Total: 0,569105	Tempo Kernel: 0,021357	Tempo Reduction: 0,000094
+======================= Rodada: 10 ======================= 
+Rainhas: 10	Resposta: 724	Tempo: 0,012952	
+Rainhas: 10	Resposta: 724	Tempo Total: 0,650940	Tempo Kernel: 0,103873	Tempo Reduction: 0,000103
+======================= Rodada: 11 ======================= 
+Rainhas: 11	Resposta: 2680	Tempo: 0,070062	
+Rainhas: 11	Resposta: 2680	Tempo Total: 1,053219	Tempo Kernel: 0,508860	Tempo Reduction: 0,000103
+======================= Rodada: 12 ======================= 
+Rainhas: 12	Resposta: 14200	Tempo: 0,409179	
+Rainhas: 12	Resposta: 14200	Tempo Total: 3,372706	Tempo Kernel: 2,800787	Tempo Reduction: 0,000208
+======================= Rodada: 13 ======================= 
+Rainhas: 13	Resposta: 73712	Tempo: 2,520062	
+Rainhas: 13	Resposta: 73712	Tempo Total: 17,512259	Tempo Kernel: 16,947143	Tempo Reduction: 0,000170
+======================= Rodada: 14 ======================= 
+Rainhas: 14	Resposta: 365596	Tempo: 16,527710	
+Rainhas: 14	Resposta: 365596	Tempo Total: 110,755938	Tempo Kernel: 110,116259	Tempo Reduction: 0,000175
+======================= Rodada: 15 ======================= 
+Rainhas: 16	Resposta: 14772512	Tempo: 848,668119	
+Rainhas: 16	Resposta: 14772512	Tempo: 850,628730	
+Rainhas: 15	Resposta: 2279184	Tempo: 117,339200	
+Rainhas: 15	Resposta: 2279184	Tempo Total: 759,375382	Tempo Kernel: 758,704287	Tempo Reduction: 0,000237
+======================= Rodada: 16 ======================= 
+Rainhas: 16	Resposta: 14772512	Tempo: 838,782926	
+Rainhas: 16	Resposta: 14772512	Tempo Total: 5543,205023	Tempo Kernel: 5542,553128	Tempo Reduction: 0,000321
+======================= Rodada: 17 ======================= 
+Rainhas: 17	Resposta: 95815104	Tempo: 6468,756191	
+======================= Rodada: 18 ======================= 
