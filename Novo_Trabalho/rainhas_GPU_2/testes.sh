@@ -1,9 +1,8 @@
 #!/bin/bash
 
-echo "" > saidas_2
+data=$(date +"%m-%d-%y%T")
+printf "\n\nINICIANDO NOVA RODADA 'rainhas_GPU_2': %s\n" $data >> saidas_2
 for i in {1..17}
 do
-    echo "======================= Rodada: "$i" ======================= "  >> saidas_2
-    ../rainhas_iterativo $i >> saidas_2 
     ./rainhas_GPU_2 $i >> saidas_2  
 done
