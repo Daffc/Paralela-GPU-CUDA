@@ -139,10 +139,6 @@ int main(int argc, char *argv[])
     tempo_ini =   timestamp();
     
     cudaMalloc((void **)&respostas, rainhas * sizeof(unsigned int));    
-
-    // thrust::device_vector<unsigned int> t_respostas(rainhas);
-    // respostas = thrust::raw_pointer_cast(&t_respostas[0]);
-
     
     // DEFINIDO DIMENSÕES DE GRID E BLOCK LINEARES PARA KERNELS resolveTabuleiro E uint2rgbKernelSHM.
     dim3 DimGridTrans((rainhas-1)/NTHREADS + 1, 1, 1);
